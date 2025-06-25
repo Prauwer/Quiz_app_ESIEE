@@ -1,0 +1,28 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "title": "Quelle est la capitale de la France ?",
+      "propositions": ["Berlin", "Madrid", "Paris", "Rome"],
+      "réponse": 2
+    },
+    {
+      "id": 2,
+      "title": "Quel framework JavaScript est utilisé par ce projet ?",
+      "propositions": ["React", "Angular", "Vue.js", "Svelte"],
+      "réponse": 2
+    },
+    {
+      "id": 3,
+      "title": "Combien de jours y a-t-il dans une année bissextile ?",
+      "propositions": ["364", "365", "366", "367"],
+      "réponse": 2
+    },
+    {
+      "id": 4,
+      "title": "Lequel de ces langages n'est pas un langage de programmation ?",
+      "propositions": ["Python", "HTML", "Java", "C++"],
+      "réponse": 1
+    }
+  ]
+}

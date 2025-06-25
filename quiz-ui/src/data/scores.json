@@ -1,0 +1,17 @@
+[
+  {
+    "playerName": "Jean-Michel Codeur",
+    "score": 10,
+    "date": "2024-05-20T10:00:00Z"
+  },
+  {
+    "playerName": "Marie-Claude Frontend",
+    "score": 8,
+    "date": "2024-05-19T14:30:00Z"
+  },
+  {
+    "playerName": "Kevin Backend",
+    "score": 5,
+    "date": "2024-05-21T11:25:00Z"
+  }
+]
