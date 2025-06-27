@@ -56,6 +56,16 @@ def handle_questions():
         except ValueError:
             return jsonify({"error": "Le paramètre 'position' doit être un entier"}), 400
 
+@app.route('/rebuild-db', methods=['POST'])
+def rebuild_db_endpoint():
+    """Supprime et recrée la base de données."""
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"error": "Jeton d'autorisation manquant"}), 401
+    
+    quiz_db.rebuild_database()
+    return "Ok", 200
+
 @app.route('/questions/all', methods=['DELETE'])
 def delete_all_questions_endpoint():
     """Supprime toutes les questions et réponses."""
@@ -136,12 +146,14 @@ def create_participation():
     
     return jsonify(participation.to_json_summary(answers_summary)), 200
 
+
 @app.route('/participations/all', methods=['DELETE'])
 def delete_all_participations_endpoint():
     """Supprime toutes les participations enregistrées."""
     token = request.headers.get('Authorization')
     if not token:
         return jsonify({"error": "Jeton d'autorisation manquant"}), 401
+    
     quiz_db.delete_all_participations()
     return '', 204
 

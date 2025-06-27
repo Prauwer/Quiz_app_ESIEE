@@ -6,6 +6,56 @@ from serializers import db_row_to_question, db_row_to_answer
 
 DATABASE_NAME = 'Database.db'
 
+def rebuild_database():
+    """Supprime et recrée toutes les tables pour une base de données propre."""
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    try:
+        # L'ordre est important à cause des clés étrangères
+        cursor.execute("DROP TABLE IF EXISTS participations")
+        cursor.execute("DROP TABLE IF EXISTS possible_answers")
+        cursor.execute("DROP TABLE IF EXISTS questions")
+
+        # Création de la table questions
+        cursor.execute("""
+            CREATE TABLE questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                position INTEGER NOT NULL UNIQUE,
+                title TEXT NOT NULL,
+                text TEXT NOT NULL,
+                image TEXT
+            )
+        """)
+
+        # Création de la table possible_answers
+        cursor.execute("""
+            CREATE TABLE possible_answers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                text TEXT NOT NULL,
+                is_correct INTEGER NOT NULL CHECK(is_correct IN (0, 1)),
+                question_id INTEGER NOT NULL,
+                FOREIGN KEY (question_id) REFERENCES questions (id)
+            )
+        """)
+
+        # Création de la table participations
+        cursor.execute("""
+            CREATE TABLE participations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                player_name TEXT NOT NULL,
+                answers TEXT NOT NULL,
+                score INTEGER,
+                date TEXT
+            )
+        """)
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Erreur lors de la reconstruction de la base de données : {e}")
+        conn.rollback()
+    finally:
+        conn.close()
+
+
 def _get_question_position(cursor, question_id: int):
     """Récupère la position actuelle d'une question."""
     cursor.execute("SELECT position FROM questions WHERE id = ?", (question_id,))
