@@ -42,7 +42,7 @@ def handle_questions():
             new_question.id = question_id
             return jsonify(question_to_json(new_question)), 200
         else:
-            return jsonify({"error": "La position existe peut-être déjà"}), 409
+            return jsonify({"error": "Erreur lors de la création de la question"}), 500
 
     elif request.method == 'GET':
         position = request.args.get('position')
@@ -97,10 +97,18 @@ def handle_question_by_id(question_id):
 
         if result == 1:
             return '', 204
-        elif result == -1:
-            return jsonify({"error": "La position est déjà utilisée par une autre question"}), 409
         else:
             return jsonify({"error": "La question à mettre à jour n'a pas été trouvée"}), 404
+
+@app.route('/participations/all', methods=['DELETE'])
+def delete_all_participations_endpoint():
+    """Supprime toutes les participations enregistrées."""
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"error": "Jeton d'autorisation manquant"}), 401
+    
+    quiz_db.delete_all_participations()
+    return '', 204
 
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
