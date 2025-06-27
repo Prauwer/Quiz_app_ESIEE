@@ -61,6 +61,8 @@ Pour initialiser ou réinitialiser le quiz avec un jeu de questions prédéfini,
 
 Votre quiz est maintenant prêt à être utilisé.
 
+> Alternativement, il existe un jeu de test appelé `quiz_tests.postman_collection.json` que vous pouvez utiliser pour tester la solidité de l'API.
+
 ## 📊 Schéma de la Base de Données
 
 Le schéma de la base de données SQLite est composé de trois tables liées entre elles.
