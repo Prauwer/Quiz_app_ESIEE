@@ -1,0 +1,310 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a8b-9c1d-0e9f8a7b6c5d",
+		"name": "Quiz - Data Generation",
+		"description": "Collection pour peupler la base de données avec un jeu de questions initial.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1 - Login as Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Token is received\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('token');",
+							"    pm.collectionVariables.set(\"admin_token\", jsonData.token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"password\": \"{{pwd}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2 - Rebuild Database",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Database rebuilt successfully\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/rebuild-db",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"rebuild-db"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3 - Add Question 1 (Géographie)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Quelle est la capitale de la France ?\",\n    \"title\": \"Géographie de base\",\n    \"image\": null,\n    \"position\": 1,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Lyon\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Paris\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Marseille\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4 - Add Question 2 (Histoire)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"En quelle année a eu lieu la Révolution française ?\",\n    \"title\": \"Histoire de France\",\n    \"image\": null,\n    \"position\": 2,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"1492\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"1945\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"1789\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"1815\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5 - Add Question 3 (Art)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Qui a peint la Joconde ?\",\n    \"title\": \"Culture Artistique\",\n    \"image\": null,\n    \"position\": 3,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Michel-Ange\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Raphaël\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Donatello\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Léonard de Vinci\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6 - Add Question 4 (Science)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Quel est le symbole chimique de l'eau ?\",\n    \"title\": \"Chimie de base\",\n    \"image\": null,\n    \"position\": 4,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"H2O\",\n            \"isCorrect\": true \n        },\n        {\n            \"text\": \"CO2\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"O2\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7 - Add Question 5 (Géopolitique)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Quelle est la capitale administrative de la Palestine ?\",\n    \"title\": \"Géopolitique\",\n    \"image\": null,\n    \"position\": 5,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Gaza\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Jérusalem-Est\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Hébron\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Ramallah\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{admin_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "admin_token",
+			"value": ""
+		}
+	]
+}

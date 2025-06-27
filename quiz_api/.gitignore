@@ -2,3 +2,4 @@ venv
 Database.db
 Database.db-journal
 __pycache__
+.code-workspace
