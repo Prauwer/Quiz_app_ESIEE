@@ -1,5 +1,6 @@
 import sqlite3
-from models import Question, PossibleAnswer
+import json
+from models import Question, PossibleAnswer, Participation
 # On importe les deux sérialiseurs BDD -> Objet
 from serializers import db_row_to_question, db_row_to_answer
 
@@ -13,21 +14,15 @@ def _get_question_position(cursor, question_id: int):
 
 def _shift_positions_down(cursor, from_position: int):
     """Décale les positions de 1 vers le bas, de manière compatible avec toutes les versions de SQLite."""
-    # On sélectionne les ID des questions à décaler, en les triant du plus grand au plus petit
     cursor.execute("SELECT id FROM questions WHERE position >= ? ORDER BY position DESC", (from_position,))
-    # On récupère tous les IDs dans une liste
     ids_to_update = [row[0] for row in cursor.fetchall()]
-    # On parcourt la liste et on met à jour chaque question individuellement
-    # Cet ordre évite les conflits avec la contrainte UNIQUE
     for q_id in ids_to_update:
         cursor.execute("UPDATE questions SET position = position + 1 WHERE id = ?", (q_id,))
 
 def _shift_positions_up(cursor, from_position: int):
     """Décale les positions de 1 vers le haut, de manière plus robuste."""
-    # On sélectionne les ID des questions à décaler, en ordre croissant cette fois
     cursor.execute("SELECT id FROM questions WHERE position > ? ORDER BY position ASC", (from_position,))
     ids_to_update = [row[0] for row in cursor.fetchall()]
-    # On met à jour chaque question individuellement pour éviter les conflits
     for q_id in ids_to_update:
         cursor.execute("UPDATE questions SET position = position - 1 WHERE id = ?", (q_id,))
 
@@ -36,9 +31,7 @@ def add_question_with_answers(question: Question):
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
     try:
-        # On décale les questions existantes pour faire de la place
         _shift_positions_down(cursor, question.position)
-        
         cursor.execute(
             "INSERT INTO questions (position, title, text, image) VALUES (?, ?, ?, ?)",
             (question.position, question.title, question.text, question.image)
@@ -55,7 +48,6 @@ def add_question_with_answers(question: Question):
         conn.commit()
         return question_id
     except sqlite3.Error as e:
-        # Ajout d'un print pour faciliter le débogage
         print(f"Erreur lors de l'ajout de la question: {e}")
         conn.rollback() 
         return None
@@ -69,40 +61,29 @@ def update_question_with_answers(question_id: int, question_data: Question):
     try:
         old_position = _get_question_position(cursor, question_id)
         if old_position is None:
-            return 0  # La question n'existe pas
-
+            return 0
         new_position = question_data.position
-        
-        # Si la position ne change pas, on fait une simple mise à jour
         if old_position == new_position:
             cursor.execute(
                 """UPDATE questions SET title = ?, text = ?, image = ? WHERE id = ?""",
                 (question_data.title, question_data.text, question_data.image, question_id)
             )
         else:
-            # La position change, on gère le réordonnancement
             cursor.execute("UPDATE questions SET position = -1 WHERE id = ?", (question_id,))
-            
             if new_position < old_position:
-                # On décale vers le bas (incrémente la position) les questions affectées
                 cursor.execute("SELECT id FROM questions WHERE position >= ? AND position < ? ORDER BY position DESC", (new_position, old_position))
                 ids_to_shift = [row[0] for row in cursor.fetchall()]
                 for q_id in ids_to_shift:
                     cursor.execute("UPDATE questions SET position = position + 1 WHERE id = ?", (q_id,))
-            else: # new_position > old_position
-                # On décale vers le haut (décrémente la position) les questions affectées
+            else:
                 cursor.execute("SELECT id FROM questions WHERE position > ? AND position <= ? ORDER BY position ASC", (old_position, new_position))
                 ids_to_shift = [row[0] for row in cursor.fetchall()]
                 for q_id in ids_to_shift:
                     cursor.execute("UPDATE questions SET position = position - 1 WHERE id = ?", (q_id,))
-
-            # On met à jour la question cible avec toutes ses données, y compris sa nouvelle position
             cursor.execute(
                 """UPDATE questions SET position = ?, title = ?, text = ?, image = ? WHERE id = ?""",
                 (new_position, question_data.title, question_data.text, question_data.image, question_id)
             )
-
-        # Mise à jour des réponses (on les remplace complètement)
         cursor.execute("DELETE FROM possible_answers WHERE question_id = ?", (question_id,))
         if question_data.possibleAnswers:
             answers_to_insert = [
@@ -114,11 +95,44 @@ def update_question_with_answers(question_id: int, question_data: Question):
                 answers_to_insert
             )
         conn.commit()
-        return 1 # Succès
+        return 1
     except sqlite3.Error as e:
         print(f"Erreur lors de la mise à jour: {e}")
         conn.rollback()
         return 0
+    finally:
+        conn.close()
+
+def get_all_questions_and_answers():
+    """Récupère toutes les questions et leurs réponses, ordonnées par position."""
+    conn = sqlite3.connect(DATABASE_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM questions ORDER BY position ASC")
+    question_rows = cursor.fetchall()
+    questions = []
+    for q_row in question_rows:
+        question = db_row_to_question(q_row)
+        question.possibleAnswers = get_answers_for_question(question.id)
+        questions.append(question)
+    conn.close()
+    return questions
+
+def add_participation(participation: Participation):
+    """Enregistre une nouvelle participation."""
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    try:
+        # On stocke la liste des réponses en tant que chaîne JSON
+        answers_json = json.dumps(participation.answers)
+        cursor.execute(
+            "INSERT INTO participations (player_name, answers) VALUES (?, ?)",
+            (participation.player_name, answers_json)
+        )
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Erreur lors de l'ajout de la participation: {e}")
+        conn.rollback()
     finally:
         conn.close()
 
@@ -189,13 +203,9 @@ def delete_question_by_id(question_id: int):
         position = _get_question_position(cursor, question_id)
         if position is None:
             return 0
-
         cursor.execute("DELETE FROM possible_answers WHERE question_id = ?", (question_id,))
         cursor.execute("DELETE FROM questions WHERE id = ?", (question_id,))
-        
-        # On décale les questions suivantes pour combler le trou
         _shift_positions_up(cursor, position)
-
         conn.commit()
         return 1
     except sqlite3.Error as e:

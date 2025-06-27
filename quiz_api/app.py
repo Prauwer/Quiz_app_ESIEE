@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import hashlib
 import quiz_db
 from serializers import json_to_question, question_to_json
+from models import Participation
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'a1b9f8c7e6d5a4b3c2d1f0e9d8c7b6a5a4b3c2d1f0e9'
@@ -92,13 +93,67 @@ def handle_question_by_id(question_id):
         
         data = request.get_json()
         updated_question_data = json_to_question(data)
-
         result = quiz_db.update_question_with_answers(question_id, updated_question_data)
-
         if result == 1:
             return '', 204
         else:
-            return jsonify({"error": "La question à mettre à jour n'a pas été trouvée"}), 404
+            return jsonify({"error": "La question à mettre à jour n'a pas été trouvée ou une erreur est survenue"}), 404
+
+@app.route('/participations', methods=['POST'])
+def create_participation():
+    """Crée une nouvelle participation et retourne le score."""
+    data = request.get_json()
+    if not data or not all(k in data for k in ['playerName', 'answers']):
+        return jsonify({"error": "Données manquantes : playerName et answers sont requis"}), 400
+
+    player_name = data.get('playerName')
+    # Le payload contient la position (1-based index) de la réponse choisie
+    player_answers_positions = data.get('answers')
+
+    all_questions = quiz_db.get_all_questions_and_answers()
+
+    if len(player_answers_positions) != len(all_questions):
+        return jsonify({"error": "Le nombre de réponses ne correspond pas au nombre de questions"}), 400
+
+    score = 0
+    answers_summary = []
+
+    for i, question in enumerate(all_questions):
+        correct_answer_position = -1 # Utiliser -1 si aucune réponse correcte n'est trouvée
+        correct_answer_id = None
+        was_correct = False
+        
+        # Trouver la position (1-based) de la bonne réponse pour cette question
+        for ans_idx, answer in enumerate(question.possibleAnswers):
+            if answer.is_correct:
+                correct_answer_position = ans_idx + 1 # +1 pour passer de 0-based à 1-based
+                correct_answer_id = answer.id
+                break
+        
+        player_chosen_position = -1
+        try:
+            # La réponse du joueur est déjà une position (1-based)
+            player_chosen_position = int(player_answers_positions[i])
+        except (ValueError, TypeError):
+             player_chosen_position = -1 # Traite les réponses non valides comme incorrectes
+
+        # Comparer les positions (1-based)
+        if player_chosen_position > 0 and player_chosen_position == correct_answer_position:
+            score += 1
+            was_correct = True
+        
+        answers_summary.append({
+            # Le payload de retour demande l'ID de la bonne réponse, pas sa position
+            "correctAnswerId": correct_answer_id,
+            "wasCorrect": was_correct
+        })
+    
+    # Enregistrement de la participation en BDD
+    participation = Participation(player_name, player_answers_positions, score)
+    quiz_db.add_participation(participation)
+    
+    return jsonify(participation.to_json_summary(answers_summary)), 200
+
 
 @app.route('/participations/all', methods=['DELETE'])
 def delete_all_participations_endpoint():
