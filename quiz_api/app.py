@@ -19,9 +19,7 @@ def login():
         password_from_request = payload['password']
         hashed_password = hashlib.md5(password_from_request.encode()).hexdigest()
         if hashed_password == admin_password_hash:
-            token = jwt.encode({
-                'exp' : datetime.utcnow() + timedelta(minutes=30)
-            }, app.config['SECRET_KEY'], algorithm="HS256")
+            token = jwt.encode({'exp' : datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
             return {"token": token}, 200
     return 'Unauthorized', 401
 
@@ -90,7 +88,6 @@ def handle_question_by_id(question_id):
         token = request.headers.get('Authorization')
         if not token:
             return jsonify({"error": "Jeton d'autorisation manquant"}), 401
-        
         data = request.get_json()
         updated_question_data = json_to_question(data)
         result = quiz_db.update_question_with_answers(question_id, updated_question_data)
@@ -107,9 +104,7 @@ def create_participation():
         return jsonify({"error": "Données manquantes : playerName et answers sont requis"}), 400
 
     player_name = data.get('playerName')
-    # Le payload contient la position (1-based index) de la réponse choisie
     player_answers_positions = data.get('answers')
-
     all_questions = quiz_db.get_all_questions_and_answers()
 
     if len(player_answers_positions) != len(all_questions):
@@ -117,43 +112,29 @@ def create_participation():
 
     score = 0
     answers_summary = []
-
     for i, question in enumerate(all_questions):
-        correct_answer_position = -1 # Utiliser -1 si aucune réponse correcte n'est trouvée
+        correct_answer_position = -1
         correct_answer_id = None
         was_correct = False
-        
-        # Trouver la position (1-based) de la bonne réponse pour cette question
         for ans_idx, answer in enumerate(question.possibleAnswers):
             if answer.is_correct:
-                correct_answer_position = ans_idx + 1 # +1 pour passer de 0-based à 1-based
+                correct_answer_position = ans_idx + 1
                 correct_answer_id = answer.id
                 break
-        
         player_chosen_position = -1
         try:
-            # La réponse du joueur est déjà une position (1-based)
             player_chosen_position = int(player_answers_positions[i])
         except (ValueError, TypeError):
-             player_chosen_position = -1 # Traite les réponses non valides comme incorrectes
-
-        # Comparer les positions (1-based)
+             player_chosen_position = -1
         if player_chosen_position > 0 and player_chosen_position == correct_answer_position:
             score += 1
             was_correct = True
-        
-        answers_summary.append({
-            # Le payload de retour demande l'ID de la bonne réponse, pas sa position
-            "correctAnswerId": correct_answer_id,
-            "wasCorrect": was_correct
-        })
+        answers_summary.append({"correctAnswerId": correct_answer_id, "wasCorrect": was_correct})
     
-    # Enregistrement de la participation en BDD
     participation = Participation(player_name, player_answers_positions, score)
     quiz_db.add_participation(participation)
     
     return jsonify(participation.to_json_summary(answers_summary)), 200
-
 
 @app.route('/participations/all', methods=['DELETE'])
 def delete_all_participations_endpoint():
@@ -161,17 +142,36 @@ def delete_all_participations_endpoint():
     token = request.headers.get('Authorization')
     if not token:
         return jsonify({"error": "Jeton d'autorisation manquant"}), 401
-    
     quiz_db.delete_all_participations()
     return '', 204
 
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
-    """Retourne des informations générales sur le quiz."""
+    """Retourne des informations générales sur le quiz et les scores passés."""
     size = quiz_db.get_question_count()
-    # Les scores ne sont pas encore implémentés
-    scores = []
-    return jsonify({"size": size, "scores": scores}), 200
+    scores_from_db = quiz_db.get_all_scores()
+    
+    formatted_scores = []
+    for score_entry in scores_from_db:
+        try:
+            # Parse la date stockée en BDD (format YYYY-MM-DD HH:MM:SS)
+            date_obj = datetime.strptime(score_entry['date'], '%Y-%m-%d %H:%M:%S')
+            # Formate la date comme demandé (dd/MM/yyyy HH:mm:ss)
+            formatted_date = date_obj.strftime('%d/%m/%Y %H:%M:%S')
+            formatted_scores.append({
+                "playerName": score_entry['player_name'],
+                "score": score_entry['score'],
+                "date": formatted_date
+            })
+        except (ValueError, TypeError):
+            # Gère le cas où la date serait null ou mal formatée en BDD
+            formatted_scores.append({
+                "playerName": score_entry['player_name'],
+                "score": score_entry['score'],
+                "date": "Date invalide"
+            })
+            
+    return jsonify({"size": size, "scores": formatted_scores}), 200
 
 @app.route('/')
 def hello_world():
