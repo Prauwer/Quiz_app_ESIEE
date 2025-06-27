@@ -33,7 +33,7 @@ def question_to_json(question: Question):
     }
 
 def db_row_to_question(row):
-    """Convertit une ligne de la BDD (sqlite3.Row) en objet Question."""
+    """Convertit une ligne de la table questions (sqlite3.Row) en objet Question."""
     if not row:
         return None
     return Question(
@@ -42,4 +42,15 @@ def db_row_to_question(row):
         title=row['title'],
         text=row['text'],
         image=row['image']
+    )
+
+def db_row_to_answer(row):
+    """Convertit une ligne de la table possible_answers (sqlite3.Row) en objet PossibleAnswer."""
+    if not row:
+        return None
+    return PossibleAnswer(
+        id=row['id'],
+        text=row['text'],
+        is_correct=bool(row['is_correct']), # Convertit l'entier (0/1) en booléen
+        question_id=row['question_id']
     )
