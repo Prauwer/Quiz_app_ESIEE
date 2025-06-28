@@ -109,6 +109,8 @@ onMounted(async () => {
       possibleAnswers: [
         { text: "", isCorrect: true },
         { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
+        { text: "", isCorrect: false },
       ],
     };
     correctAnswerIndex.value = 0;
