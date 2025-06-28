@@ -1,10 +1,10 @@
-import axios from 'axios';
-import AdminAuthService from './AdminAuthService';
+import axios from "axios";
+import AdminAuthService from "./AdminAuthService";
 
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:5000', // Adaptez le port si nécessaire
+  baseURL: "http://127.0.0.1:5000", // Adaptez le port si nécessaire
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -20,7 +20,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export default {
@@ -31,7 +31,7 @@ export default {
    * GET /quiz-info
    */
   getQuizInfo() {
-    return apiClient.get('/quiz-info');
+    return apiClient.get("/quiz-info");
   },
 
   /**
@@ -46,10 +46,10 @@ export default {
   /**
    * Sauvegarde une participation à la fin du quiz
    * POST /participations
-   * @param {object} participationData - ex: { playerName: 'John', answers: [1, 2, 0, ...] }
+   * @param {object} participationData - ex: { playerName: 'John', answers: [2, 3, 1, ...] }
    */
   saveParticipation(participationData) {
-    return apiClient.post('/participations', participationData);
+    return apiClient.post("/participations", participationData);
   },
 
   // --- PARTIE ADMIN ---
@@ -60,12 +60,12 @@ export default {
    * @param {object} credentials - ex: { password: 'password123' }
    */
   login(credentials) {
-    return apiClient.post('/login', credentials);
+    return apiClient.post("/login", credentials);
   },
 
   /**
-   * Récupère les informations générales du quiz (taille et scores)
-   * GET /quiz-info
+   * Recupère une question par ID
+   * GET /questions/:id
    */
   getQuestionById(questionId) {
     return apiClient.get(`/questions/${questionId}`);
@@ -76,7 +76,7 @@ export default {
    * POST /questions
    */
   createQuestion(questionData) {
-    return apiClient.post('/questions', questionData);
+    return apiClient.post("/questions", questionData);
   },
 
   /**
@@ -93,5 +93,21 @@ export default {
    */
   deleteQuestion(questionId) {
     return apiClient.delete(`/questions/${questionId}`);
+  },
+
+  /**
+   * Supprime toutes les questions du quiz
+   * DELETE /questions/all
+   */
+  deleteAllQuestions() {
+    return apiClient.delete("/questions/all");
+  },
+
+  /**
+   * Supprime toutes les participations enregistrées
+   * DELETE /participations/all
+   */
+  deleteAllParticipations() {
+    return apiClient.delete("/participations/all");
   },
 };
