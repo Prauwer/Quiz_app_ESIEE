@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "a1b2c3d4-e5f6-4a8b-9c1d-0e9f8a7b6c5d",
-		"name": "Quiz - Data Generation",
-		"description": "Collection pour peupler la base de données avec un jeu de questions initial.",
+		"_postman_id": "c7d8e9f0-a1b2-4c3d-8e9f-0a1b2c3d4e5f",
+		"name": "Quiz - Data Generation (Cinéma)",
+		"description": "Collection pour peupler la base de données avec un jeu de 10 questions sur le cinéma.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -13,14 +13,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"pm.test(\"Token is received\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('token');",
-							"    pm.collectionVariables.set(\"admin_token\", jsonData.token);",
-							"});"
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"Token is received\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property('token'); pm.collectionVariables.set(\"admin_token\", jsonData.token); });"
 						],
 						"type": "text/javascript"
 					}
@@ -57,9 +51,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Database rebuilt successfully\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
+							"pm.test(\"Database rebuilt successfully\", function () { pm.response.to.have.status(200); });"
 						],
 						"type": "text/javascript"
 					}
@@ -91,7 +83,7 @@
 			"response": []
 		},
 		{
-			"name": "3 - Add Question 1 (Géographie)",
+			"name": "3 - Q1: La La Land",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -107,7 +99,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"text\": \"Quelle est la capitale de la France ?\",\n    \"title\": \"Géographie de base\",\n    \"image\": null,\n    \"position\": 1,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Lyon\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Paris\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Marseille\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"raw": "{\n    \"text\": \"Quel instrument de musique Ryan Gosling joue-t-il dans 'La La Land' ?\",\n    \"title\": \"La La Land\",\n    \"image\": null,\n    \"position\": 1,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"La guitare\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Le piano\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Le saxophone\",\n            \"isCorrect\": false\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -127,7 +119,7 @@
 			"response": []
 		},
 		{
-			"name": "4 - Add Question 2 (Histoire)",
+			"name": "4 - Q2: WALL-E",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -143,7 +135,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"text\": \"En quelle année a eu lieu la Révolution française ?\",\n    \"title\": \"Histoire de France\",\n    \"image\": null,\n    \"position\": 2,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"1492\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"1945\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"1789\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"1815\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"raw": "{\n    \"text\": \"Quel est le nom du petit cafard ami de WALL-E ?\",\n    \"title\": \"WALL-E\",\n    \"image\": null,\n    \"position\": 2,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Spike\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Hal\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Flik\",\n            \"isCorrect\": false\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -163,7 +155,7 @@
 			"response": []
 		},
 		{
-			"name": "5 - Add Question 3 (Art)",
+			"name": "5 - Q3: Acteur Populaire",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -179,7 +171,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"text\": \"Qui a peint la Joconde ?\",\n    \"title\": \"Culture Artistique\",\n    \"image\": null,\n    \"position\": 3,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Michel-Ange\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Raphaël\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Donatello\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Léonard de Vinci\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"raw": "{\n    \"text\": \"Quel acteur incarne le personnage de Tony Stark dans l'univers Marvel ?\",\n    \"title\": \"Acteurs & Rôles\",\n    \"image\": null,\n    \"position\": 3,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Chris Evans\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Mark Ruffalo\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Robert Downey Jr.\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Chris Hemsworth\",\n            \"isCorrect\": false\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -199,7 +191,7 @@
 			"response": []
 		},
 		{
-			"name": "6 - Add Question 4 (Science)",
+			"name": "6 - Q4: Film culte",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -215,7 +207,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"text\": \"Quel est le symbole chimique de l'eau ?\",\n    \"title\": \"Chimie de base\",\n    \"image\": null,\n    \"position\": 4,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"H2O\",\n            \"isCorrect\": true \n        },\n        {\n            \"text\": \"CO2\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"O2\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"raw": "{\n    \"text\": \"Dans 'Pulp Fiction', que contient la mystérieuse mallette ?\",\n    \"title\": \"Films Cultes\",\n    \"image\": null,\n    \"position\": 4,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Des diamants\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"De l'or\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Le film ne le montre jamais\",\n            \"isCorrect\": true\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -235,7 +227,7 @@
 			"response": []
 		},
 		{
-			"name": "7 - Add Question 5 (Géopolitique)",
+			"name": "7 - Q5: Réalisateur",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -251,7 +243,187 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"text\": \"Quelle est la capitale administrative de la Palestine ?\",\n    \"title\": \"Géopolitique\",\n    \"image\": null,\n    \"position\": 5,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Gaza\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Jérusalem-Est\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Hébron\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Ramallah\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"raw": "{\n    \"text\": \"Quel réalisateur est connu pour ses films 'Inception', 'The Dark Knight' et 'Interstellar' ?\",\n    \"title\": \"Réalisateurs\",\n    \"image\": null,\n    \"position\": 5,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Steven Spielberg\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Martin Scorsese\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Christopher Nolan\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Quentin Tarantino\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8 - Q6: Science-Fiction",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Dans la saga 'Star Wars', qui est le père de Luke Skywalker ?\",\n    \"title\": \"Science-Fiction\",\n    \"image\": null,\n    \"position\": 6,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Obi-Wan Kenobi\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Yoda\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Dark Vador\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9 - Q7: Animation Japonaise",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Quel film du studio Ghibli met en scène un esprit de la forêt nommé Totoro ?\",\n    \"title\": \"Animation Japonaise\",\n    \"image\": null,\n    \"position\": 7,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Le Voyage de Chihiro\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Princesse Mononoké\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Mon Voisin Totoro\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 - Q8: Actrice",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Quelle actrice joue le rôle de Katniss Everdeen dans la saga 'Hunger Games' ?\",\n    \"title\": \"Actrices & Rôles\",\n    \"image\": null,\n    \"position\": 8,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Emma Watson\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Jennifer Lawrence\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Scarlett Johansson\",\n            \"isCorrect\": false\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11 - Q9: Musique de Film",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Qui a composé la célèbre musique du film 'Le Seigneur des Anneaux' ?\",\n    \"title\": \"Musique de Film\",\n    \"image\": null,\n    \"position\": 9,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"John Williams\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"Hans Zimmer\",\n            \"isCorrect\": false\n        },\n        {\n            \"text\": \"Howard Shore\",\n            \"isCorrect\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12 - Q10: Film Français",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Quel film français a remporté l'Oscar du meilleur film en 2012 ?\",\n    \"title\": \"Cinéma Français\",\n    \"image\": null,\n    \"position\": 10,\n    \"possibleAnswers\": [\n        {\n            \"text\": \"Intouchables\",\n            \"isCorrect\": false \n        },\n        {\n            \"text\": \"The Artist\",\n            \"isCorrect\": true\n        },\n        {\n            \"text\": \"Amour\",\n            \"isCorrect\": false\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
