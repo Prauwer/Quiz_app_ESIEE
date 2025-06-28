@@ -121,7 +121,7 @@ const API_URL = 'http://localhost:5000';
 
 Assurez-vous que la [partie API](#-partie-api) est lancée et accessible à cette adresse avant de lancer l'UI.
 
-* **⚠️ Pensez à initialiser la base de données** avec le bouton "*Réinitialiser la base de données*" dans **la page admin** lors du premier lancement ! Les échanges entre l'UI et l'API ne fonctionneront pas sinon.
+⚠️⚠️ **Pensez à initialiser la base de données** avec le bouton "*Réinitialiser la base de données*" dans **la page admin** lors du premier lancement ! Les échanges entre l'UI et l'API ne fonctionneront pas sinon. ⚠️⚠️
 
 ## 🚀 Lancement de l'UI
 
