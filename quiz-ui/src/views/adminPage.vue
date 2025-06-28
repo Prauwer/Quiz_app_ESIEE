@@ -50,7 +50,15 @@
                   :key="question.id"
                   class="list-group-item d-flex justify-content-between align-items-center"
                 >
-                  <span>{{ question.position }}. {{ question.title }}</span>
+                  <div class="d-flex align-items-center">
+                    <span>{{ question.position }}. {{ question.title }}</span>
+                    <img
+                      v-if="question.image"
+                      :src="question.image"
+                      alt="Aperçu"
+                      class="question-image-thumbnail"
+                    />
+                  </div>
                   <div class="actions">
                     <router-link
                       :to="'/admin/edit/' + question.id"
@@ -99,12 +107,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import quizApiService from '@/services/QuizApiService.js';
-import AdminAuthService from '@/services/AdminAuthService.js';
+import { ref, onMounted } from "vue";
+import quizApiService from "@/services/QuizApiService.js";
+import AdminAuthService from "@/services/AdminAuthService.js";
 
 // --- Logique de Connexion ---
-const password = ref('');
+const password = ref("");
 const isAuthenticated = ref(false);
 const loginError = ref(false);
 
@@ -128,7 +136,7 @@ async function handleLogin() {
     }
   } catch (error) {
     loginError.value = true;
-    console.error('Erreur de connexion:', error);
+    console.error("Erreur de connexion:", error);
   }
 }
 
@@ -154,18 +162,18 @@ async function loadQuestions() {
     const responses = await Promise.all(promises);
     questions.value = responses.map((res) => res.data).sort((a, b) => a.position - b.position);
   } catch (e) {
-    console.error('Erreur chargement questions admin', e);
+    console.error("Erreur chargement questions admin", e);
     questions.value = []; // En cas d'erreur, vider la liste
   }
 }
 
 async function deleteQuestion(questionId) {
-  if (window.confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
+  if (window.confirm("Êtes-vous sûr de vouloir supprimer cette question ?")) {
     try {
       await quizApiService.deleteQuestion(questionId);
       loadQuestions(); // Recharger la liste
     } catch (error) {
-      alert('La suppression a échoué.');
+      alert("La suppression a échoué.");
     }
   }
 }
@@ -173,15 +181,15 @@ async function deleteQuestion(questionId) {
 async function rebuildDatabase() {
   if (
     window.confirm(
-      'ACTION IRRÉVERSIBLE !\nCeci va effacer TOUTES les données (questions, participations, etc.) et recréer une base vide. Êtes-vous sûr de vouloir continuer ?'
+      "ACTION IRRÉVERSIBLE !\nCeci va effacer TOUTES les données (questions, participations, etc.) et recréer une base vide. Êtes-vous sûr de vouloir continuer ?",
     )
   ) {
     try {
       await quizApiService.rebuildDatabase();
-      alert('La base de données a été réinitialisée avec succès.');
+      alert("La base de données a été réinitialisée avec succès.");
       loadQuestions(); // Recharger la liste, qui sera maintenant vide.
     } catch (error) {
-      alert('La reconstruction de la base de données a échoué.');
+      alert("La reconstruction de la base de données a échoué.");
     }
   }
 }
@@ -189,15 +197,15 @@ async function rebuildDatabase() {
 async function deleteAllQuestions() {
   if (
     window.confirm(
-      'ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les questions ?'
+      "ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les questions ?",
     )
   ) {
     try {
       await quizApiService.deleteAllQuestions();
-      alert('Toutes les questions ont été supprimées.');
+      alert("Toutes les questions ont été supprimées.");
       loadQuestions(); // Recharger la liste pour la vider
     } catch (error) {
-      alert('La suppression de toutes les questions a échoué.');
+      alert("La suppression de toutes les questions a échoué.");
     }
   }
 }
@@ -205,14 +213,14 @@ async function deleteAllQuestions() {
 async function deleteAllParticipations() {
   if (
     window.confirm(
-      'ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les participations ?'
+      "ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les participations ?",
     )
   ) {
     try {
       await quizApiService.deleteAllParticipations();
-      alert('Toutes les participations ont été supprimées.');
+      alert("Toutes les participations ont été supprimées.");
     } catch (error) {
-      alert('La suppression de toutes les participations a échoué.');
+      alert("La suppression de toutes les participations a échoué.");
     }
   }
 }
@@ -221,5 +229,13 @@ async function deleteAllParticipations() {
 <style scoped>
 .admin-page {
   min-height: 100vh;
+}
+.question-image-thumbnail {
+  width: 20%;
+  max-width: 100px; /* Empêche l'image de devenir trop grande */
+  height: auto;
+  margin-left: 1rem;
+  border-radius: 0.25rem;
+  object-fit: cover;
 }
 </style>
