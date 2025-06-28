@@ -1,21 +1,42 @@
 <template>
-  <div v-if="currentQuestion">
-    <h1>Question {{ currentQuestionPosition }} / {{ totalNumberOfQuestions }}</h1>
-    <QuestionDisplay :currentQuestion="currentQuestion" @answer-clicked="answerClickedHandler" />
-  </div>
-  <div v-else>
-    <p>Chargement du quiz...</p>
+  <div class="question-manager-page bg-light py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between">
+              <h1 class="h4 mb-0">
+                Question {{ currentQuestionPosition }} / {{ totalNumberOfQuestions }}
+              </h1>
+            </div>
+            <div class="card-body p-4">
+              <div v-if="currentQuestion">
+                <QuestionDisplay
+                  :currentQuestion="currentQuestion"
+                  @answer-clicked="answerClickedHandler"
+                />
+              </div>
+              <div v-else class="text-center text-muted">
+                <p>Chargement du quiz...</p>
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter, onBeforeRouteLeave } from "vue-router";
-import quizApiService from "@/services/QuizApiService.js";
-import participationStorageService from "@/services/ParticipationStorageService.js";
-import QuestionDisplay from "@/components/QuestionDisplay.vue";
+import { ref, onMounted } from 'vue';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import quizApiService from '@/services/QuizApiService.js';
+import participationStorageService from '@/services/ParticipationStorageService.js';
+import QuestionDisplay from '@/components/QuestionDisplay.vue';
 
-// Propriétés réactives
 const allQuestions = ref([]);
 const currentQuestion = ref(null);
 const currentQuestionPosition = ref(1);
@@ -24,23 +45,18 @@ const playerAnswers = ref([]);
 const isQuizInProgress = ref(false);
 const router = useRouter();
 
-// Méthode appelée au montage du composant
 onMounted(async () => {
   try {
     const infoResponse = await quizApiService.getQuizInfo();
     const quizSize = infoResponse.data.size;
     totalNumberOfQuestions.value = quizSize;
-
     if (quizSize === 0) return;
-
     const fetchPromises = [];
     for (let i = 1; i <= quizSize; i++) {
       fetchPromises.push(quizApiService.getQuestionByPosition(i));
     }
-
     const questionResponses = await Promise.all(fetchPromises);
     allQuestions.value = questionResponses.map((response) => response.data);
-
     loadQuestionByPosition(currentQuestionPosition.value);
     isQuizInProgress.value = true;
   } catch (error) {
@@ -54,7 +70,6 @@ function loadQuestionByPosition(position) {
 
 function answerClickedHandler(selectedAnswerId) {
   playerAnswers.value.push(selectedAnswerId);
-
   if (currentQuestionPosition.value < totalNumberOfQuestions.value) {
     currentQuestionPosition.value++;
     loadQuestionByPosition(currentQuestionPosition.value);
@@ -67,27 +82,20 @@ async function endQuiz() {
   isQuizInProgress.value = false;
   try {
     const playerName = participationStorageService.getPlayerName();
-
-    // On récupère la réponse de l'API qui contient le score
     const response = await quizApiService.saveParticipation({
       playerName: playerName,
       answers: playerAnswers.value,
     });
-
-    // On sauvegarde le score obtenu dans le localStorage
     participationStorageService.saveParticipationScore(response.data.score);
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde de la participation:", error);
+    console.error('Erreur lors de la sauvegarde de la participation:', error);
   }
-
-  // On redirige vers la page des scores
-  router.push("/score");
+  router.push('/score');
 }
 
-// Hook de navigation : demander confirmation avant de quitter la page
 onBeforeRouteLeave((to, from, next) => {
   if (isQuizInProgress.value) {
-    if (window.confirm("Voulez-vous vraiment quitter ? Votre progression sera perdue.")) {
+    if (window.confirm('Voulez-vous vraiment quitter ? Votre progression sera perdue.')) {
       next();
     } else {
       next(false);
@@ -98,4 +106,10 @@ onBeforeRouteLeave((to, from, next) => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.question-manager-page {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+</style>

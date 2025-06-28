@@ -1,15 +1,25 @@
-<!-- Component des questions  -->
 <template>
-  <div v-if="currentQuestion">
-    <h2>{{ currentQuestion.title }}</h2>
-    <p>{{ currentQuestion.text }}</p>
-    <img v-if="currentQuestion.image" :src="currentQuestion.image" alt="Image de la question" />
-    <ul>
-      <li v-for="(answer, index) in currentQuestion.possibleAnswers" :key="answer.id">
-        <!-- On envoie l'ID unique de la réponse au lieu de son index -->
-        <a @click="handleAnswerClick(answer.id)">{{ answer.text }}</a>
-      </li>
-    </ul>
+  <div v-if="currentQuestion" class="text-center">
+    <h2 class="h3 mb-3">{{ currentQuestion.title }}</h2>
+    <p class="lead text-muted">{{ currentQuestion.text }}</p>
+
+    <img
+      v-if="currentQuestion.image"
+      :src="currentQuestion.image"
+      alt="Image de la question"
+      class="img-fluid rounded shadow-sm my-4"
+    />
+
+    <div class="list-group mt-4">
+      <a
+        v-for="(answer, index) in currentQuestion.possibleAnswers"
+        :key="answer.id"
+        @click="handleAnswerClick(answer.id)"
+        class="list-group-item list-group-item-action fs-5"
+      >
+        {{ answer.text }}
+      </a>
+    </div>
   </div>
 </template>
 
@@ -18,25 +28,31 @@ defineProps({
   currentQuestion: Object,
 });
 
-const emit = defineEmits(["answer-clicked"]);
+const emit = defineEmits(['answer-clicked']);
 
-// La fonction émet maintenant l'ID de la réponse cliquée
 function handleAnswerClick(answerId) {
-  emit("answer-clicked", answerId);
+  emit('answer-clicked', answerId);
 }
 </script>
 
 <style lang="css" scoped>
-li a {
+.list-group-item-action {
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
-
-/* Style pour l'image de la question */
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+  transform: scale(1.02);
+  background-color: #f8f9fa;
+  border-color: #0d6efd;
+  /* [AJOUT] Restaure la bordure supérieure au survol pour tous les éléments */
+  border-top-width: 1px;
+  color: #0d6efd;
+  z-index: 1;
+}
 img {
-  display: block; /* Nécessaire pour que margin: auto fonctionne */
-  max-width: 50%; /* L'image prendra au maximum 50% de la largeur de son conteneur */
-  height: auto; /* La hauteur s'ajuste pour conserver les proportions */
-  margin: 20px auto; /* Ajoute 20px d'espace en haut/bas et centre l'image horizontalement */
-  border-radius: 8px; /* Ajoute des bords arrondis pour un aspect plus moderne */
+  max-height: 400px;
+  width: auto;
+  max-width: 100%;
 }
 </style>
