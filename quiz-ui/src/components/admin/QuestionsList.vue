@@ -1,14 +1,16 @@
 <template>
-  <div class="questions-list">
-    <div class="list-header">
-      <h3>Liste des Questions ({{ questions.length }})</h3>
-      <div class="main-actions">
-        <router-link to="/admin/edit/new" class="button">Ajouter une question</router-link>
-      </div>
+  <div class="card shadow-sm questions-list">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="h5 mb-0">Liste des Questions ({{ questions.length }})</h3>
+      <router-link to="/admin/edit/new" class="button">Ajouter une question</router-link>
     </div>
 
-    <ul>
-      <li v-for="question in questions" :key="question.id">
+    <ul class="list-group list-group-flush">
+      <li
+        v-for="question in questions"
+        :key="question.id"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
         <span>{{ question.position }}. {{ question.title }}</span>
         <div class="actions">
           <router-link :to="'/admin/edit/' + question.id" class="button-edit">Modifier</router-link>
@@ -17,13 +19,12 @@
       </li>
     </ul>
 
-    <!-- Zone pour les actions dangereuses (déplacée en bas) -->
-    <div class="danger-zone">
-      <h4>Actions globales</h4>
-      <button @click="deleteAllQuestions" class="button-delete">
+    <div class="card-footer bg-danger-subtle text-danger-emphasis">
+      <h4 class="h6 mb-2">Actions globales (irréversibles)</h4>
+      <button @click="deleteAllQuestions" class="btn btn-danger btn-sm me-2">
         Supprimer toutes les questions
       </button>
-      <button @click="deleteAllParticipations" class="button-delete">
+      <button @click="deleteAllParticipations" class="btn btn-danger btn-sm">
         Supprimer toutes les participations
       </button>
     </div>
@@ -31,14 +32,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import quizApiService from "@/services/QuizApiService.js";
+import { ref, onMounted } from 'vue';
+import quizApiService from '@/services/QuizApiService.js';
 
 const questions = ref([]);
 
 async function loadQuestions() {
-  // Note: l'admin a aussi besoin de toutes les questions.
-  // En attendant, on utilise la même logique de boucle que pour les participants.
   try {
     const info = await quizApiService.getQuizInfo();
     const promises = [];
@@ -48,19 +47,19 @@ async function loadQuestions() {
     const responses = await Promise.all(promises);
     questions.value = responses.map((res) => res.data).sort((a, b) => a.position - b.position);
   } catch (e) {
-    console.error("Erreur chargement questions admin", e);
+    console.error("Erreur lors du chargement des questions pour l'admin:", e);
   }
 }
 
 onMounted(loadQuestions);
 
 async function deleteQuestion(questionId) {
-  if (window.confirm("Êtes-vous sûr de vouloir supprimer cette question ?")) {
+  if (window.confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
     try {
       await quizApiService.deleteQuestion(questionId);
       loadQuestions(); // Recharger la liste
     } catch (error) {
-      alert("La suppression a échoué.");
+      alert('La suppression a échoué.');
     }
   }
 }
@@ -68,15 +67,15 @@ async function deleteQuestion(questionId) {
 async function deleteAllQuestions() {
   if (
     window.confirm(
-      "ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les questions ?",
+      'ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les questions ?'
     )
   ) {
     try {
       await quizApiService.deleteAllQuestions();
-      alert("Toutes les questions ont été supprimées.");
+      alert('Toutes les questions ont été supprimées.');
       loadQuestions(); // Recharger la liste pour la vider
     } catch (error) {
-      alert("La suppression de toutes les questions a échoué.");
+      alert('La suppression de toutes les questions a échoué.');
     }
   }
 }
@@ -84,60 +83,26 @@ async function deleteAllQuestions() {
 async function deleteAllParticipations() {
   if (
     window.confirm(
-      "ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les participations ?",
+      'ACTION IRRÉVERSIBLE !\nÊtes-vous sûr de vouloir supprimer TOUTES les participations ?'
     )
   ) {
     try {
       await quizApiService.deleteAllParticipations();
-      alert("Toutes les participations ont été supprimées.");
-      // Pas besoin de recharger les données de cette page, mais on pourrait
-      // par exemple mettre à jour une autre partie de l'état de l'application si nécessaire.
+      alert('Toutes les participations ont été supprimées.');
     } catch (error) {
-      alert("La suppression de toutes les participations a échoué.");
+      alert('La suppression de toutes les participations a échoué.');
     }
   }
 }
 </script>
 
 <style scoped>
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.danger-zone {
-  background-color: #fff5f5;
-  border: 1px solid #e53e3e;
-  border-radius: 8px;
-  padding: 15px;
-  margin-top: 30px; /* Ajout d'un espace en haut */
-}
-.danger-zone h4 {
-  margin-top: 0;
-  color: #c53030;
-}
-.danger-zone .button-delete {
-  margin-right: 10px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
+/* Vos styles de boutons personnalisés que vous aimez sont conservés */
 .actions {
   display: flex;
   gap: 10px;
 }
 
-/* Style de base pour les boutons, à adapter à votre design system */
 .button,
 .button-edit,
 .button-delete {
@@ -148,14 +113,17 @@ li {
   text-decoration: none;
   color: white;
   font-weight: bold;
+  text-align: center;
+  display: inline-block;
 }
 .button {
-  background-color: #42b983;
+  background-color: #198754; /* Vert Bootstrap */
 }
 .button-edit {
-  background-color: #f0ad4e;
+  background-color: #ffc107; /* Jaune Bootstrap */
+  color: #000;
 }
 .button-delete {
-  background-color: #d9534f;
+  background-color: #dc3545; /* Rouge Bootstrap */
 }
 </style>
