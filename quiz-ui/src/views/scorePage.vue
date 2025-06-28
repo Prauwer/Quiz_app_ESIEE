@@ -34,7 +34,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import participationStorageService from '@/services/ParticipationStorageService.js';
 import quizData from '@/data/questions.json'; // Pour obtenir le nombre total de questions
-import scoresData from '@/data/scores.json';
+import quizApiService from '@/services/QuizApiService.js';
 
 const router = useRouter();
 const playerName = ref('');
@@ -43,17 +43,12 @@ const totalQuestions = ref(0);
 const registeredScores = ref([]);
 
 onMounted(async () => {
-  /////BACK COMMENTÉ/////
-  // try {
-  //   const response = await quizApiService.getScore();
-  //   registeredScores.value = response.data;
-  //   console.log('Registered scores:', registeredScores.value);
-  // } catch (error) {
-  //   console.error('Error fetching registered scores:', error);
-  // }
-
-  registeredScores.value = scoresData;
-  console.log('Registered scores (from JSON):', registeredScores.value);
+  try {
+    const response = await quizApiService.getQuizInfo();
+    registeredScores.value = response.data.scores;
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
 });
 
 // onMounted est appelé lorsque le composant est prêt

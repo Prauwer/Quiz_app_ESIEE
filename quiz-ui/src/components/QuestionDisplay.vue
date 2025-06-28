@@ -2,18 +2,18 @@
 <template>
   <div v-if="currentQuestion">
     <h2>{{ currentQuestion.title }}</h2>
+    <p>{{ currentQuestion.text }}</p>
     <img v-if="currentQuestion.image" :src="currentQuestion.image" alt="Image de la question" />
-
     <ul>
-      <li v-for="(answer, index) in currentQuestion.propositions" :key="index">
-        <a @click="handleAnswerClick(index)">{{ answer }}</a>
+      <li v-for="(answer, index) in currentQuestion.possibleAnswers" :key="answer.id">
+        <a @click="handleAnswerClick(index)">{{ answer.text }}</a>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   currentQuestion: Object,
 });
 
@@ -24,4 +24,8 @@ function handleAnswerClick(index) {
 }
 </script>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+li a {
+  cursor: pointer;
+}
+</style>

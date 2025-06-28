@@ -4,29 +4,33 @@
 
     <form @submit.prevent="saveQuestion" v-if="localQuestion">
       <div class="form-group">
-        <label>Titre de la question</label>
+        <label>Position</label>
+        <input type="number" v-model="localQuestion.position" required />
+      </div>
+      <div class="form-group">
+        <label>Titre</label>
         <input type="text" v-model="localQuestion.title" required />
       </div>
+      <div class="form-group">
+        <label>Texte de la question</label>
+        <textarea v-model="localQuestion.text"></textarea>
+      </div>
+      <ImageUpload @file-change="imageFileChangedHandler" :fileDataUrl="imageAsb64" />
+      <!-- <div class="form-group">
+        <label>Image (URL)</label>
+        <input type="text" v-model="localQuestion.image" />
+      </div> -->
 
       <div class="form-group">
-        <label>Propositions de réponse</label>
-        <div
-          v-for="(proposition, index) in localQuestion.propositions"
-          :key="index"
-          class="proposition-group"
-        >
-          <input type="text" v-model="localQuestion.propositions[index]" />
-          <input
-            type="radio"
-            :name="'correct-answer'"
-            :value="index"
-            v-model="localQuestion.réponse"
-          />
+        <label>Réponses Possibles</label>
+        <div v-for="(answer, index) in localQuestion.possibleAnswers" :key="index">
+          <input type="text" v-model="answer.text" required />
+          <label>
+            <input type="radio" :value="index" v-model="correctAnswerIndex" name="correctAnswer" />
+            Correcte
+          </label>
         </div>
       </div>
-
-      <!-- Image à gérer plus tard -->
-      <ImageUpload @file-change="imageFileChangedHandler" :fileDataUrl="imageAsb64" />
 
       <div class="form-actions">
         <button type="submit">Enregistrer</button>
@@ -37,56 +41,64 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import quizData from '@/data/questions.json';
+import quizApiService from '@/services/QuizApiService.js';
 import ImageUpload from '@/components/admin/ImageUpload.vue';
 
 const route = useRoute();
 const router = useRouter();
-
 // "Copie locale" de la question pour pouvoir la modifier dans le formulaire
 const localQuestion = ref(null);
-
 // Détermine si on est en mode édition ou création
 const isEditing = computed(() => route.params.id !== 'new');
+const correctAnswerIndex = ref(0);
 
 // Variable pour stocker l'image en base64
 const imageAsb64 = ref('');
 
-onMounted(() => {
-  const questionId = parseInt(route.params.id);
-
+onMounted(async () => {
   if (isEditing.value) {
-    const originalQuestion = quizData.questions.find((q) => q.id === questionId);
-    if (originalQuestion) {
-      // COPIE LOCALE : Très important car les props/données importées sont en lecture seule.
-      // On crée une copie pour pouvoir la modifier sans affecter l'original.
-      localQuestion.value = JSON.parse(JSON.stringify(originalQuestion));
-    }
+    const questionId = parseInt(route.params.id);
+    const response = await quizApiService.getQuestionById(questionId);
+    localQuestion.value = response.data;
+    correctAnswerIndex.value = localQuestion.value.possibleAnswers.findIndex((a) => a.isCorrect);
   } else {
     // Mode création : on initialise un objet question vide
     localQuestion.value = {
-      id: Date.now(), // ID temporaire
+      position: 1,
       title: '',
-      propositions: ['', '', '', ''], // 4 propositions vides par défaut
-      réponse: 0, // La première réponse est correcte par défaut
+      text: '',
       image: '',
+      possibleAnswers: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
     };
   }
 });
 
-function saveQuestion() {
-  if (isEditing.value) {
-    console.log(
-      'SIMULATION : Enregistrement des modifications pour la question',
-      localQuestion.value
-    );
-  } else {
-    console.log('SIMULATION : Création de la nouvelle question', localQuestion.value);
+watch(correctAnswerIndex, (newIndex) => {
+  if (localQuestion.value) {
+    localQuestion.value.possibleAnswers.forEach((answer, index) => {
+      answer.isCorrect = index === newIndex;
+    });
   }
-  alert('Modifications enregistrées (simulation). Redirection vers la liste.');
-  router.push('/admin');
+});
+
+async function saveQuestion() {
+  try {
+    // Met à jour la propriété isCorrect avant l'envoi
+    localQuestion.value.possibleAnswers.forEach((answer, index) => {
+      answer.isCorrect = index === correctAnswerIndex.value;
+    });
+
+    if (isEditing.value) {
+      await quizApiService.updateQuestion(localQuestion.value.id, localQuestion.value);
+    } else {
+      await quizApiService.createQuestion(localQuestion.value);
+    }
+    router.push('/admin');
+  } catch (error) {
+    alert("L'enregistrement a échoué.");
+  }
 }
 
 function imageFileChangedHandler(b64String) {
