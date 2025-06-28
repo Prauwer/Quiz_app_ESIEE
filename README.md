@@ -67,12 +67,12 @@ Le schéma de la base de données SQLite est composé de trois tables liées ent
 +----------------+      +--------------------+      +------------------+
 |   questions    |      |  possible_answers  |      |  participations  |
 |----------------|      |--------------------|      |------------------|
-| PK id INTEGER  |------<| FK question_id INT |      | PK id INTEGER    |
+| PK id INTEGER  |-----<| FK question_id INT |      | PK id INTEGER    |
 | position INT   |      | id INTEGER         |      | player_name TEXT |
 | title TEXT     |      | text TEXT          |      | score INTEGER    |
 | text TEXT      |      | is_correct INT     |      | date TEXT        |
 | image TEXT     |      +--------------------+      | answers TEXT     |
-+----------------+                                   +------------------+
++----------------+                                  +------------------+
 ```
 
 - Une question peut avoir plusieurs réponses possibles (relation un-à-plusieurs).
