@@ -97,9 +97,12 @@ onMounted(async () => {
     const foundIndex = localQuestion.value.possibleAnswers.findIndex((a) => a.isCorrect);
     correctAnswerIndex.value = foundIndex !== -1 ? foundIndex : 0;
   } else {
-    // Mode création : on initialise un objet question avec 2 réponses par défaut
+    // Mode création : on récupère la taille du quiz pour proposer la bonne position
+    const info = await quizApiService.getQuizInfo();
+    const newPosition = info.data.size + 1;
+
     localQuestion.value = {
-      position: 1,
+      position: newPosition,
       title: "",
       text: "",
       image: "",

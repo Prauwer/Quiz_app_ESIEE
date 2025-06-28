@@ -11,12 +11,9 @@ def rebuild_database():
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
     try:
-        # L'ordre est important à cause des clés étrangères
         cursor.execute("DROP TABLE IF EXISTS participations")
         cursor.execute("DROP TABLE IF EXISTS possible_answers")
         cursor.execute("DROP TABLE IF EXISTS questions")
-
-        # Création de la table questions
         cursor.execute("""
             CREATE TABLE questions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,8 +23,6 @@ def rebuild_database():
                 image TEXT
             )
         """)
-
-        # Création de la table possible_answers
         cursor.execute("""
             CREATE TABLE possible_answers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,8 +32,6 @@ def rebuild_database():
                 FOREIGN KEY (question_id) REFERENCES questions (id)
             )
         """)
-
-        # Création de la table participations
         cursor.execute("""
             CREATE TABLE participations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,6 +55,12 @@ def _get_question_position(cursor, question_id: int):
     result = cursor.fetchone()
     return result[0] if result else None
 
+def _get_max_question_position(cursor):
+    """Récupère la position maximale actuellement dans le quiz."""
+    cursor.execute("SELECT MAX(position) FROM questions")
+    result = cursor.fetchone()[0]
+    return result if result is not None else 0
+
 def _shift_positions_down(cursor, from_position: int):
     """Décale les positions de 1 vers le bas, de manière compatible."""
     cursor.execute("SELECT id FROM questions WHERE position >= ? ORDER BY position DESC", (from_position,))
@@ -77,10 +76,14 @@ def _shift_positions_up(cursor, from_position: int):
         cursor.execute("UPDATE questions SET position = position - 1 WHERE id = ?", (q_id,))
 
 def add_question_with_answers(question: Question):
-    """Ajoute une question et décale les autres si nécessaire."""
+    """Ajoute une question, comble les trous de position et décale les autres si nécessaire."""
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
     try:
+        max_pos = _get_max_question_position(cursor)
+        if question.position > max_pos + 1:
+            question.position = max_pos + 1
+
         _shift_positions_down(cursor, question.position)
         cursor.execute(
             "INSERT INTO questions (position, title, text, image) VALUES (?, ?, ?, ?)",
