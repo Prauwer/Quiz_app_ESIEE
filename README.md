@@ -162,3 +162,17 @@ Accessible via le bouton "Admin" sur la page d'accueil.
         * Plusieurs réponses possibles (de 2 à n).
         * La sélection de la bonne réponse via un bouton radio.
     * **Suppression** : Chaque question peut être supprimée individuellement (2 minimum).
+
+## 📸 Captures d'écran
+
+### 🏠 Page d'accueil
+![image](https://github.com/user-attachments/assets/b1500dab-1626-46a6-979b-635426cee987)
+
+### ❓ Partie Quiz
+![image](https://github.com/user-attachments/assets/06d5b947-529d-4540-b002-94b5e5bf3873)
+![image](https://github.com/user-attachments/assets/2dddec67-bf2d-4cd4-a0e8-3493aca60db6)
+
+### 🛠️ Partie admin
+
+![image](https://github.com/user-attachments/assets/55a17a3a-7cd7-4cd4-bf0b-76cc9ce2a32b)
+![image](https://github.com/user-attachments/assets/fb0e0701-559f-4f07-9bf4-a66f24666a89)
