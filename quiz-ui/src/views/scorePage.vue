@@ -1,31 +1,74 @@
 <template>
-  <div class="score-container" v-if="playerName">
-    <h1>🏆 Bravo, {{ playerName }} ! 🏆</h1>
-    <p style="color: #205b40">Vous avez terminé le quiz.</p>
-    <div class="score-display">
-      <p>Votre score final est de :</p>
-      <span class="score">{{ score }} / {{ totalQuestions }}</span>
-    </div>
+  <div class="score-page py-5 bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 offset-md-2">
+          <div class="card text-center shadow-sm">
+            <div class="card-body p-5">
+              <div v-if="playerName">
+                <h1 class="card-title">🏆 Bravo, {{ playerName }} ! 🏆</h1>
+                <p class="lead text-muted">Vous avez terminé le quiz avec brio.</p>
 
-    <div class="feedback">
-      <p>{{ feedbackMessage }}</p>
-    </div>
-    <div class="registered-scores">
-      <h2>tableaux des scores</h2>
-      <div v-for="scoreEntry in registeredScores" v-bind:key="scoreEntry.date">
-        {{ scoreEntry.playerName }} - {{ scoreEntry.score }}
+                <div class="my-4">
+                  <p class="mb-2">Votre score final est de :</p>
+                  <h2 class="display-3 fw-bold text-primary">{{ score }} / {{ totalQuestions }}</h2>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                  <h4 class="alert-heading">Votre classement</h4>
+                  <p>
+                    Vous êtes classé(e) <strong>#{{ playerRank }}</strong> parmi tous les
+                    participants.
+                  </p>
+                  <hr />
+                  <p class="mb-0">{{ feedbackMessage }}</p>
+                </div>
+
+                <hr class="my-4" />
+
+                <h3 class="mb-3">Leaderboard - Top 3</h3>
+                <div v-if="topThreeScores.length > 0">
+                  <ul class="list-group list-group-flush">
+                    <li
+                      v-for="(scoreEntry, index) in topThreeScores"
+                      :key="scoreEntry.date"
+                      class="list-group-item d-flex justify-content-between align-items-center"
+                      :class="{ 'list-group-item-success': scoreEntry.playerName === playerName }"
+                    >
+                      <span class="fw-bold">
+                        <span v-if="index === 0">🥇</span>
+                        <span v-else-if="index === 1">🥈</span>
+                        <span v-else-if="index === 2">🥉</span>
+                        {{ scoreEntry.playerName }}
+                      </span>
+                      <span class="badge bg-primary rounded-pill fs-6"
+                        >{{ scoreEntry.score }} pts</span
+                      >
+                    </li>
+                  </ul>
+                </div>
+                <p v-else>Le classement est en cours de chargement...</p>
+
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                  <button @click="playAgain" class="btn btn-primary btn-lg px-4 gap-3">
+                    Rejouer
+                  </button>
+                  <router-link to="/" class="btn btn-secondary btn-lg px-4"
+                    >Retour à l'accueil</router-link
+                  >
+                </div>
+              </div>
+
+              <div v-else>
+                <h1 class="card-title">Quiz terminé</h1>
+                <p class="lead">Aucune donnée de participation n'a été trouvée.</p>
+                <router-link to="/" class="btn btn-secondary mt-3">Retour à l'accueil</router-link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="actions">
-      <button @click="playAgain">Rejouer</button>
-      <router-link to="/" class="button-secondary">Retour à l'accueil</router-link>
-    </div>
-  </div>
-  <div v-else class="score-container">
-    <h1>Quiz terminé</h1>
-    <p>Aucune donnée de participation trouvée.</p>
-    <router-link to="/" class="button-secondary">Retour à l'accueil</router-link>
   </div>
 </template>
 
@@ -33,124 +76,72 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import participationStorageService from '@/services/ParticipationStorageService.js';
-import quizData from '@/data/questions.json'; // Pour obtenir le nombre total de questions
 import quizApiService from '@/services/QuizApiService.js';
 
 const router = useRouter();
 const playerName = ref('');
 const score = ref(0);
 const totalQuestions = ref(0);
-const registeredScores = ref([]);
+const allScores = ref([]);
 
 onMounted(async () => {
+  // Récupérer les informations du joueur depuis le stockage local
+  playerName.value = participationStorageService.getPlayerName();
+  score.value = participationStorageService.getParticipationScore();
+
+  // Récupérer les informations générales du quiz (y compris les scores)
   try {
     const response = await quizApiService.getQuizInfo();
-    registeredScores.value = response.data.scores;
+    allScores.value = response.data.scores;
+    totalQuestions.value = response.data.size;
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('Erreur lors de la récupération des informations du quiz:', error);
+    // Optionnel : afficher un message d'erreur à l'utilisateur
   }
 });
 
-// onMounted est appelé lorsque le composant est prêt
-onMounted(() => {
-  playerName.value = participationStorageService.getPlayerName();
-  score.value = participationStorageService.getParticipationScore(); // Assure que le score est un nombre
-  totalQuestions.value = quizData.questions.length;
+// Calcule le classement du joueur
+const playerRank = computed(() => {
+  const sortedScores = [...allScores.value].sort((a, b) => b.score - a.score);
+  const playerIndex = sortedScores.findIndex(
+    (s) => s.playerName === playerName.value && s.score === score.value
+  );
+  return playerIndex !== -1 ? playerIndex + 1 : 'N/A';
+});
+
+// Calcule les 3 meilleurs scores
+const topThreeScores = computed(() => {
+  return [...allScores.value].sort((a, b) => b.score - a.score).slice(0, 3);
 });
 
 // Calcule un message de feedback en fonction du score
 const feedbackMessage = computed(() => {
-  if (totalQuestions.value === 0) return '';
+  if (totalQuestions.value === 0) return 'Le quiz ne semble pas contenir de questions.';
   const percentage = (score.value / totalQuestions.value) * 100;
-  if (percentage === 100) {
-    return 'Parfait ! Vous êtes un véritable maître du quiz !';
-  } else if (percentage >= 75) {
-    return 'Excellent score ! Vous avez de solides connaissances.';
-  } else if (percentage >= 50) {
-    return 'Pas mal du tout ! Continuez comme ça.';
-  } else {
-    return "Vous pouvez faire mieux. N'hésitez pas à retenter votre chance !";
-  }
+  if (percentage === 100) return 'Parfait ! Vous êtes un véritable maître du quiz !';
+  if (percentage >= 75) return 'Excellent score ! Vous avez de solides connaissances.';
+  if (percentage >= 50) return 'Pas mal du tout ! Continuez comme ça.';
+  return "Vous pouvez faire mieux. N'hésitez pas à retenter votre chance !";
 });
 
 // Fonction pour rejouer
 function playAgain() {
-  // On nettoie les données de la partie précédente
+  // On ne nettoie que le score, le nom peut être conservé pour la prochaine partie
   participationStorageService.clear();
-  // On redirige vers la page pour démarrer un nouveau quiz
   router.push('/new-quiz');
 }
 </script>
 
-<style lang="scss" scoped>
-.score-container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+<style scoped>
+/* Scoped styles pour des ajustements fins si nécessaire */
+.score-page {
+  min-height: 100vh;
+  width: 100% !important;
 }
-
-h1 {
-  color: #333;
+.display-3 {
+  font-weight: 700;
 }
-
-.score-display {
-  margin: 20px 0;
-  p {
-    margin: 0;
-    font-size: 1.2em;
-    color: #205b40;
-  }
-  .score {
-    font-size: 3em;
-    font-weight: bold;
-    color: #42b983;
-  }
-}
-
-.feedback {
-  font-style: italic;
-  color: #555;
-  margin-bottom: 30px;
-}
-
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-
-  button,
-  .button-secondary {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  button {
-    background-color: #42b983;
-    color: white;
-    transition: background-color 0.3s;
-
-    &:hover {
-      background-color: #369b70;
-    }
-  }
-
-  .button-secondary {
-    background-color: #ccc;
-    color: #333;
-    transition: background-color 0.3s;
-
-    &:hover {
-      background-color: #bbb;
-    }
-  }
+.list-group-item-success {
+  background-color: #e9f7ef; /* Un vert léger pour mettre en évidence le joueur actuel */
 }
 </style>

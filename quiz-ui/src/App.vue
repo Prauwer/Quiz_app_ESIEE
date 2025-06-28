@@ -2,7 +2,6 @@
   <div id="app">
     <nav class="navbar">
       <router-link to="/" class="nav-item">Home</router-link>
-      <router-link to="/score" class="nav-item">Score</router-link>
       <router-link to="/admin" class="nav-item">Log In</router-link>
     </nav>
     <router-view />
@@ -15,6 +14,8 @@
 
 <style lang="scss">
 #app {
+  display: block;
+  width: 100%;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
