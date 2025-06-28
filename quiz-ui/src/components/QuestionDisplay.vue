@@ -14,7 +14,7 @@
       <a
         v-for="(answer, index) in currentQuestion.possibleAnswers"
         :key="answer.id"
-        @click="handleAnswerClick(index)"
+        @click="handleAnswerClick(index + 1)"
         class="list-group-item list-group-item-action fs-5"
       >
         {{ answer.text }}
