@@ -6,7 +6,7 @@
     <img v-if="currentQuestion.image" :src="currentQuestion.image" alt="Image de la question" />
     <ul>
       <li v-for="(answer, index) in currentQuestion.possibleAnswers" :key="answer.id">
-        <a @click="handleAnswerClick(index)">{{ answer.text }}</a>
+        <a @click="handleAnswerClick(index + 1)">{{ answer.text }}</a>
       </li>
     </ul>
   </div>
