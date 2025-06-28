@@ -16,14 +16,19 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 1.  **Clonez le projet** : Clonez ou téléchargez ce projet sur votre machine locale.
 
-2.  **Créez un environnement virtuel (recommandé)** : Ouvrez un terminal à la racine du projet et exécutez :
+2.  **Accédez au répertoire de l'API** : Ouvrez un terminal à la racine du projet et déplacez-vous dans le dossier `quiz_api`.
+    ```bash
+    cd quiz_api
     ```
+
+3.  **Créez un environnement virtuel (recommandé)** : Ouvrez un terminal à la racine du projet et exécutez :
+    ```bash
     python -m venv venv
     source venv/bin/activate  # Sur Windows: venv\Scripts\activate
     ```
 
-3.  **Installez les dépendances** : Le projet inclut un fichier `requirements.txt`. Exécutez la commande suivante pour installer les bibliothèques nécessaires :
-    ```
+4.  **Installez les dépendances** : Le projet inclut un fichier `requirements.txt`. Exécutez la commande suivante pour installer les bibliothèques nécessaires :
+    ```bash
     pip install -r requirements.txt
     ```
 
@@ -39,7 +44,7 @@ Pour utiliser les collections Postman (tests et génération de données), vous 
 ## 🚀 Lancement de l'API
 
 Une fois l'installation terminée, lancez le serveur Flask avec la commande suivante à la racine du projet :
-```
+```bash
 python app.py
 ```
 L'API sera alors accessible à l'adresse `http://127.0.0.1:5000`.
@@ -116,13 +121,15 @@ const API_URL = 'http://localhost:5000';
 
 Assurez-vous que la [partie API](#-partie-api) est lancée et accessible à cette adresse avant de lancer l'UI.
 
+* **⚠️ Pensez à initialiser la base de données** avec le bouton "*Réinitialiser la base de données*" dans **la page admin** lors du premier lancement ! Les échanges entre l'UI et l'API ne fonctionneront pas sinon.
+
 ## 🚀 Lancement de l'UI
 
 Une fois l'installation terminée, lancez le serveur de développement Vite avec la commande suivante depuis le dossier `quiz-ui`:
 ```bash
 npm run dev
 ```
-L'application sera alors accessible à l'adresse indiquée dans le terminal (généralement `http://localhost:5173`).
+L'application sera alors accessible à l'adresse indiquée dans le terminal (généralement `http://localhost:3000`).
 
 ## ✨ Fonctionnalités
 
@@ -145,11 +152,11 @@ Accessible via le bouton "Admin" sur la page d'accueil.
 
 * **Gestionnaire de questions (`/admin/questions`)** : Une fois authentifié, l'administrateur accède à une interface complète pour gérer le contenu du quiz :
     * **Liste des questions** : Affiche toutes les questions existantes avec leur titre.
-    * **Réordonnancement** : Les questions peuvent être réorganisées par un simple glisser-déposer (drag-and-drop). La nouvelle position est sauvegardée automatiquement via un appel à l'API.
+    * **Réordonnancement** : Les questions peuvent être réorganisées en changeant leur position. La nouvelle position et celle des autres sont sauvegardées automatiquement via un appel à l'API.
     * **Création et Édition** : Un formulaire permet d'ajouter une nouvelle question ou de modifier une question existante. Le formulaire inclut des champs pour :
         * Le titre de la question.
         * Le texte (énoncé) de la question.
         * Le téléchargement d'une image associée.
-        * Les quatre réponses possibles.
+        * Plusieurs réponses possibles (de 2 à n).
         * La sélection de la bonne réponse via un bouton radio.
-    * **Suppression** : Chaque question peut être supprimée individuellement.
+    * **Suppression** : Chaque question peut être supprimée individuellement (2 minimum).
