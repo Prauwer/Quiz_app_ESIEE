@@ -110,4 +110,12 @@ export default {
   deleteAllParticipations() {
     return apiClient.delete("/participations/all");
   },
+
+  /**
+   * Reconstruit la base de données du quiz
+   * POST /rebuild-db
+   */
+  rebuildDatabase() {
+    return apiClient.post("/rebuild-db");
+  },
 };
