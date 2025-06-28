@@ -99,7 +99,6 @@
 </template>
 
 <script setup>
-// Le script combine la logique des deux fichiers
 import { ref, onMounted } from 'vue';
 import quizApiService from '@/services/QuizApiService.js';
 import AdminAuthService from '@/services/AdminAuthService.js';

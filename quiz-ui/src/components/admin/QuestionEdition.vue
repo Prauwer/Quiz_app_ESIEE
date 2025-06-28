@@ -105,7 +105,6 @@
 </template>
 
 <script setup>
-// AUCUN CHANGEMENT DANS LE SCRIPT
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import quizApiService from '@/services/QuizApiService.js';
@@ -206,7 +205,4 @@ function imageFileChangedHandler(b64String) {
 }
 </script>
 
-<style scoped>
-/* [MODIFICATION] Le style de layout est maintenant géré par la grille Bootstrap, 
-   plus besoin de la classe .edition-form ici. */
-</style>
+<style scoped></style>

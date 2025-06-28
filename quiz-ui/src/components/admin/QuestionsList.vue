@@ -97,7 +97,6 @@ async function deleteAllParticipations() {
 </script>
 
 <style scoped>
-/* Vos styles de boutons personnalisés que vous aimez sont conservés */
 .actions {
   display: flex;
   gap: 10px;

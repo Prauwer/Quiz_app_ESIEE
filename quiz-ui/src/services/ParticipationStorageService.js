@@ -1,4 +1,3 @@
-// src/services/ParticipationStorageService.js
 const PLAYER_NAME_KEY = 'playerName';
 const PLAYER_SCORE_KEY = 'playerScore';
 
