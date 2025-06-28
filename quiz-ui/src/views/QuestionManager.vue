@@ -9,11 +9,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, onBeforeRouteLeave } from 'vue-router';
-import quizApiService from '@/services/QuizApiService.js';
-import participationStorageService from '@/services/ParticipationStorageService.js';
-import QuestionDisplay from '@/components/QuestionDisplay.vue';
+import { ref, onMounted } from "vue";
+import { useRouter, onBeforeRouteLeave } from "vue-router";
+import quizApiService from "@/services/QuizApiService.js";
+import participationStorageService from "@/services/ParticipationStorageService.js";
+import QuestionDisplay from "@/components/QuestionDisplay.vue";
 
 // Propriétés réactives
 const allQuestions = ref([]);
@@ -24,7 +24,7 @@ const playerAnswers = ref([]);
 const isQuizInProgress = ref(false);
 const router = useRouter();
 
-// [TO DO] Méthode appelée au montage du composant
+// Méthode appelée au montage du composant
 onMounted(async () => {
   try {
     const infoResponse = await quizApiService.getQuizInfo();
@@ -52,8 +52,8 @@ function loadQuestionByPosition(position) {
   currentQuestion.value = allQuestions.value[position - 1];
 }
 
-function answerClickedHandler(selectedAnswerIndex) {
-  playerAnswers.value.push(selectedAnswerIndex);
+function answerClickedHandler(selectedAnswerId) {
+  playerAnswers.value.push(selectedAnswerId);
 
   if (currentQuestionPosition.value < totalNumberOfQuestions.value) {
     currentQuestionPosition.value++;
@@ -67,20 +67,27 @@ async function endQuiz() {
   isQuizInProgress.value = false;
   try {
     const playerName = participationStorageService.getPlayerName();
-    await quizApiService.saveParticipation({
+
+    // On récupère la réponse de l'API qui contient le score
+    const response = await quizApiService.saveParticipation({
       playerName: playerName,
       answers: playerAnswers.value,
     });
+
+    // On sauvegarde le score obtenu dans le localStorage
+    participationStorageService.saveParticipationScore(response.data.score);
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde de la participation:', error);
+    console.error("Erreur lors de la sauvegarde de la participation:", error);
   }
-  router.push('/score');
+
+  // On redirige vers la page des scores
+  router.push("/score");
 }
 
 // Hook de navigation : demander confirmation avant de quitter la page
 onBeforeRouteLeave((to, from, next) => {
   if (isQuizInProgress.value) {
-    if (window.confirm('Voulez-vous vraiment quitter ? Votre progression sera perdue.')) {
+    if (window.confirm("Voulez-vous vraiment quitter ? Votre progression sera perdue.")) {
       next();
     } else {
       next(false);
