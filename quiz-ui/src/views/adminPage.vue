@@ -8,7 +8,6 @@
         <p v-if="loginError" class="error">Mot de passe incorrect.</p>
       </form>
     </div>
-
     <div v-else class="admin-dashboard">
       <header>
         <h1>Tableau de Bord Admin</h1>
@@ -23,25 +22,28 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import AdminAuthService from '@/services/AdminAuthService.js';
-import QuestionsList from '@/components/admin/QuestionsList.vue'; // On va le créer
+import quizApiService from '@/services/QuizApiService.js';
+import QuestionsList from '@/components/admin/QuestionsList.vue';
 
 const password = ref('');
 const isAuthenticated = ref(false);
 const loginError = ref(false);
-const router = useRouter();
 
-// Vérifier l'état de connexion au montage du composant
 onMounted(() => {
   isAuthenticated.value = AdminAuthService.isAuthenticated();
 });
 
-function handleLogin() {
-  if (AdminAuthService.login(password.value)) {
-    isAuthenticated.value = true;
-    loginError.value = false;
-  } else {
+async function handleLogin() {
+  try {
+    const response = await quizApiService.login({ password: password.value });
+    const token = response.data.token;
+    if (token) {
+      AdminAuthService.saveToken(token);
+      isAuthenticated.value = true;
+      loginError.value = false;
+    }
+  } catch (error) {
     loginError.value = true;
   }
 }
@@ -49,25 +51,5 @@ function handleLogin() {
 function handleLogout() {
   AdminAuthService.logout();
   isAuthenticated.value = false;
-  // Optionnel : rediriger ou simplement afficher le formulaire de connexion
-  router.push('/');
 }
 </script>
-
-<style scoped>
-.admin-container {
-  padding: 20px;
-}
-.login-form {
-  max-width: 300px;
-  margin: auto;
-}
-.error {
-  color: red;
-}
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-</style>

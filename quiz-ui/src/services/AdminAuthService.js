@@ -2,18 +2,11 @@ const TOKEN_KEY = 'admin-auth-token';
 
 export default {
   /**
-   * Simule une connexion. Dans une vraie app, vous appelleriez votre API ici.
-   * @param {string} password
-   * @returns {boolean} - True si le mot de passe est correct, sinon false.
+   * Sauvegarde le token reçu de l'API dans le localStorage.
+   * @param {string} token
    */
-  login(password) {
-    // MOT DE PASSE EN DUR POUR LA SIMULATION
-    if (password === 'password123') {
-      const fakeToken = 'fake-jwt-token-' + Date.now();
-      window.localStorage.setItem(TOKEN_KEY, fakeToken);
-      return true;
-    }
-    return false;
+  saveToken(token) {
+    window.localStorage.setItem(TOKEN_KEY, token);
   },
 
   /**
@@ -32,11 +25,11 @@ export default {
   },
 
   /**
-   * Vérifie si l'administrateur est authentifié (si un token "truthy" existe).
+   * Vérifie si l'administrateur est authentifié (si un token existe).
    * @returns {boolean}
    */
   isAuthenticated() {
     const token = this.getToken();
-    return !!token; // Le !! transforme la valeur en booléen (null/undefined -> false, string -> true)
+    return !!token;
   },
 };

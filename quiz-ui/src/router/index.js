@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import NewQuizPage from '../views/newQuizPage.vue';
-import QuestionPage from '../views/QuestionManager.vue';
+import QuestionManager from '../views/QuestionManager.vue';
 import scorePage from '../views/scorePage.vue';
 import AdminPage from '../views/adminPage.vue';
 import QuestionEdition from '../components/admin/QuestionEdition.vue'; // On anticipe
@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: '/questions',
       name: 'Question',
-      component: QuestionPage,
+      component: QuestionManager,
     },
     {
       path: '/score',
